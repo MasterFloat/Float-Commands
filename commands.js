@@ -111,69 +111,69 @@ exports.commands = {
   * Tool Commands *
   ****************/
 
-    reload: function (arg, user, room) {
-      if (!user.isExcepted) return false;
-      try {
-        this.uncacheTree('./commands.js');
-        Commands = require('./commands.js').commands;
-        this.say(room, '__commands.js reloaded.__');
-      } catch (e) {
-        error('failed to reload: ' + e.stack);
-      }
-    },
-  
-    uptime: function (arg, user, room) {
-      var text = ((room === user || user.isExcepted) ? '' : '/pm ' + user.id + ', ') + '**Uptime:** ';
-      var divisors = [52, 7, 24, 60, 60];
-      var units = ['week', 'day', 'hour', 'minute', 'second'];
-      var buffer = [];
-      var uptime = ~~(process.uptime());
-      do {
-        let divisor = divisors.pop();
-        let unit = uptime % divisor;
-        buffer.push(unit > 1 ? unit + ' ' + units.pop() + 's' : unit + ' ' + units.pop());
-        uptime = ~~(uptime / divisor);
-      } while (uptime);
-  
-      switch (buffer.length) {
-        case 5:
-        text += buffer[4] + ', ';
-        /* falls through */
-        case 4:
-        text += buffer[3] + ', ';
-        /* falls through */
-        case 3:
-        text += buffer[2] + ', ' + buffer[1] + ', and ' + buffer[0];
-        break;
-        case 2:
-        text += buffer[1] + ' and ' + buffer[0];
-        break;
-        case 1:
-        text += buffer[0];
-        break;
-      }
-  
-      this.say(room, text);
-    }, 
-  
-    seen: function (arg, user, room) { // this command is still a bit buggy
-      var text = (room === user ? '' : '/pm ' + user.id + ', ');
-      arg = toId(arg);
-      if (!arg || arg.length > 18) return this.say(room, text + 'Invalid username.');
-      if (arg === user.id) {
-        text += 'Have you looked in the mirror lately?';
-      } else if (arg === Users.self.id) {
-        text += 'You might be either blind or illiterate. Might want to get that checked out.';
-      } else if (!this.chatData[arg] || !this.chatData[arg].seenAt) {
-        text += 'The user ' + arg + ' has never been seen.';
-      } else {
-        text += arg + ' was last seen ' + this.getTimeAgo(this.chatData[arg].seenAt) + ' ago' + (
-        this.chatData[arg].lastSeen ? ', ' + this.chatData[arg].lastSeen : '.');
-      }
-      this.say(room, text);
-    },
+  reload: function (arg, user, room) {
+    if (!user.isExcepted) return false;
+    try {
+      this.uncacheTree('./commands.js');
+      Commands = require('./commands.js').commands;
+      this.say(room, '__commands.js reloaded.__');
+    } catch (e) {
+      error('failed to reload: ' + e.stack);
+    }
+  },
 
-    w: 'wall',
+  uptime: function (arg, user, room) {
+    var text = ((room === user || user.isExcepted) ? '' : '/pm ' + user.id + ', ') + '**Uptime:** ';
+    var divisors = [52, 7, 24, 60, 60];
+    var units = ['week', 'day', 'hour', 'minute', 'second'];
+    var buffer = [];
+    var uptime = ~~(process.uptime());
+    do {
+      let divisor = divisors.pop();
+      let unit = uptime % divisor;
+      buffer.push(unit > 1 ? unit + ' ' + units.pop() + 's' : unit + ' ' + units.pop());
+      uptime = ~~(uptime / divisor);
+    } while (uptime);
+
+    switch (buffer.length) {
+      case 5:
+      text += buffer[4] + ', ';
+      /* falls through */
+      case 4:
+      text += buffer[3] + ', ';
+      /* falls through */
+      case 3:
+      text += buffer[2] + ', ' + buffer[1] + ', and ' + buffer[0];
+      break;
+      case 2:
+      text += buffer[1] + ' and ' + buffer[0];
+      break;
+      case 1:
+      text += buffer[0];
+      break;
+    }
+
+    this.say(room, text);
+  }, 
+
+  seen: function (arg, user, room) { // this command is still a bit buggy
+    var text = (room === user ? '' : '/pm ' + user.id + ', ');
+    arg = toId(arg);
+    if (!arg || arg.length > 18) return this.say(room, text + 'Invalid username.');
+    if (arg === user.id) {
+      text += 'Have you looked in the mirror lately?';
+    } else if (arg === Users.self.id) {
+      text += 'You might be either blind or illiterate. Might want to get that checked out.';
+    } else if (!this.chatData[arg] || !this.chatData[arg].seenAt) {
+      text += 'The user ' + arg + ' has never been seen.';
+    } else {
+      text += arg + ' was last seen ' + this.getTimeAgo(this.chatData[arg].seenAt) + ' ago' + (
+      this.chatData[arg].lastSeen ? ', ' + this.chatData[arg].lastSeen : '.');
+    }
+    this.say(room, text);
+  },
+
+  w: 'wall',
     announce: 'wall',
     wall: function(arg, user, room) {
       if (!user.canUse('autoban', room)) return false;
@@ -243,25 +243,25 @@ exports.commands = {
       }
     },
 
-    addwall: function(arg, user, room) {
-      if (!user.canUse('autoban', room)) return false;
-      var parts = arg.split(',');
-      if (!parts[1]) return this.say(room, '__Usage: -addwall [wallTitle], [wallMessage]__');
-      for (var i = 0; i < walls.length; i++) {
-        if (parts[0] === walls[i].title) return this.say(room, '__There\'s already a wall under the name \'' + parts[0] + '\'.__');
-      }
-      walls.push({title: parts[0], message: parts[1], room: room.id});
-      this.say(room, '__The wall \'' + parts[0] + '\' was added to the list of walls of the room: \'' + room.id + '\'.__');
-    },
-  
-    walls: function(arg, user, room) {
-      if (!user.canUse('autoban', room)) return false;
-      for (var i = 0; i < walls.length; i++) {
-        if (arg === walls[i].title && room.id === walls[i].room) return this.say(room, '/wall ' + walls[i].message);
-      }
-    },
+  addwall: function(arg, user, room) {
+    if (!user.canUse('autoban', room)) return false;
+    var parts = arg.split(',');
+    if (!parts[1]) return this.say(room, '__Usage: -addwall [wallTitle], [wallMessage]__');
+    for (var i = 0; i < walls.length; i++) {
+      if (parts[0] === walls[i].title) return this.say(room, '__There\'s already a wall under the name \'' + parts[0] + '\'.__');
+    }
+    walls.push({title: parts[0], message: parts[1], room: room.id});
+    this.say(room, '__The wall \'' + parts[0] + '\' was added to the list of walls of the room: \'' + room.id + '\'.__');
+  },
 
-    help: 'info',
+  walls: function(arg, user, room) {
+    if (!user.canUse('autoban', room)) return false;
+    for (var i = 0; i < walls.length; i++) {
+      if (arg === walls[i].title && room.id === walls[i].room) return this.say(room, '/wall ' + walls[i].message);
+    }
+  },
+
+  help: 'info',
     om: 'info',
     othermetagame: 'info',
     format: 'info',
@@ -467,7 +467,7 @@ exports.commands = {
 
     },
 
-    gte: 'grandtourevent',
+  gte: 'grandtourevent',
     grandtourevent: function(arg, user, room){
       if (room.id !== "tournaments") return false;
       if (!user.canUse('autoban', room)) return false;
@@ -519,31 +519,118 @@ exports.commands = {
       }.bind(this), 1150 * 1000, room, '/tour remind');  
     },
 
-    commands: 'guide',
+  commands: 'guide',
     guia: 'guide',
     guide: function(arg, user, room) {
       this.say(room, '**Guide:** http://pastebin.com/359ufDq8');
     },
 
-    mymood: function(arg, user, room) {
-      var differentMoods = [
-      "happy",
-      "sad",
-      "angry",
-      "tired",
-      "lazy",
-      "confused",
-      "bored",
-      "crazy",
-      "curious",
-      "drunk",
-      "energetic"
-      ]
-      var mood = differentMoods[Math.floor(Math.random() * 11)];
-      this.say(room, user.name + "'s current mood is: " + mood);
+  code: 'github',
+    source: 'github',
+    sourcecode: 'github',
+    git: 'github',
+    github: function(arg, user, room) {
+      this.say(room, '**Source Code:** https://github.com/MasterFloat/Pokemon-Showdown-Bot');
     },
 
-    pm: 'pmuser',
+  /*********************
+  * Tool Commands ~end *
+  *********************/
+
+  /***************
+  * FUN COMMANDS *
+  ***************/
+
+  helix: function (arg, user, room) {
+    var text = (room === user || user.canUse('8ball', room)) ? '' : '/pm ' + user.id + ', ';
+    var rand = ~(20 * Math.random());
+
+    switch (rand) {
+      case 0:
+      text += "Signs point to yes.";
+      break;
+      case 1:
+      text += "Yes.";
+      break;
+      case 2:
+      text += "Reply hazy, try again.";
+      break;
+      case 3:
+      text += "Without a doubt.";
+      break;
+      case 4:
+      text += "My sources say no.";
+      break;
+      case 5:
+      text += "As I see it, yes.";
+      break;
+      case 6:
+      text += "You may rely on it.";
+      break;
+      case 7:
+      text += "Concentrate and ask again.";
+      break;
+      case 8:
+      text += "Outlook not so good.";
+      break;
+      case 9:
+      text += "It is decidedly so.";
+      break;
+      case 10:
+      text += "Better not tell you now.";
+      break;
+      case 11:
+      text += "Very doubtful.";
+      break;
+      case 12:
+      text += "Yes - definitely.";
+      break;
+      case 13:
+      text += "It is certain.";
+      break;
+      case 14:
+      text += "Cannot predict now.";
+      break;
+      case 15:
+      text += "Most likely.";
+      break;
+      case 16:
+      text += "Ask again later.";
+      break;
+      case 17:
+      text += "My reply is no.";
+      break;
+      case 18:
+      text += "Outlook good.";
+      break;
+      case 19:
+      text += "Don't count on it.";
+      break;
+    }
+
+    this.say(room, '__' + text + '__');
+
+  },
+
+  mymood: function(arg, user, room) {
+    var differentMoods = [
+    "happy",
+    "sad",
+    "angry",
+    "tired",
+    "lazy",
+    "confused",
+    "bored",
+    "crazy",
+    "curious",
+    "drunk",
+    "energetic"
+    ]
+    var mood = differentMoods[Math.floor(Math.random() * 11)];
+    this.say(room, user.name + "'s current mood is: " + mood);
+  },
+
+  pm: 'pmuser',
     pmuser: function(arg, user, room) {
       var parts = arg.split(',');
       if (/(http\/\/|.com|.net)/i.test(parts[1])) return this.say(room, "__Please do not use the bot to link to websites.__");
@@ -552,37 +639,37 @@ exports.commands = {
       this.say(room, '__Message sent!__');
     },
 
-    dizer: 'say',//for Portuguese
+  dizer: 'say',//for Portuguese
     say: function(arg, user, room) {
       if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
       if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
       this.say(room, stripCommands(arg));
     },
 
-    bsay: function(arg, user, room) {
-      if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
-      if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
-      this.say(room, stripCommands('**' + arg + '**'));
-    },
+  bsay: function(arg, user, room) {
+    if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
+    if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
+    this.say(room, stripCommands('**' + arg + '**'));
+  },
 
-    isay: function(arg, user, room) {
-      if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
-      if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
-      this.say(room, stripCommands('__' + arg + '__'));
-    },
-  
-    csay: function(arg, user, room) {
-      if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
-      if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
-      this.say(room, stripCommands('``' + arg + '``'));
-    },
-  
-    greet: function(arg, user, room) {
-      if (room.id === 'portugus') return this.say(room, 'Olá ' + arg + ', bem-vindo ao quarto português.');
-      this.say(room, 'Hey there ' + arg + ', welcome to the ' + room.id + ' room!');
-    },
+  isay: function(arg, user, room) {
+    if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
+    if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
+    this.say(room, stripCommands('__' + arg + '__'));
+  },
 
-    casar: 'pair',//for Portuguese
+  csay: function(arg, user, room) {
+    if (/(penis|vagina|xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
+    if (/(\+say)/i.test(arg)) return this.say(room, 'I don\'t want to control Safety Shark.');
+    this.say(room, stripCommands('``' + arg + '``'));
+  },
+
+  greet: function(arg, user, room) {
+    if (room.id === 'portugus') return this.say(room, 'Olá ' + arg + ', bem-vindo ao quarto português.');
+    this.say(room, 'Hey there ' + arg + ', welcome to the ' + room.id + ' room!');
+  },
+
+  casar: 'pair',//for Portuguese
     marry: 'pair',
     pair: function(arg, user, room) {
       var pairing = toId(arg);
@@ -621,7 +708,7 @@ exports.commands = {
       this.say(room, user.name + ' and ' + arg + ' are ' + match + '% compatible!');
     },
 
-    mytype: 'typing',
+  mytype: 'typing',
     type: 'typing',
     typing: function(arg, user, room) {
       if (!arg) {
@@ -794,6 +881,7 @@ exports.commands = {
 
   away: function(arg, user, room) {
     if(!user.hasRank(room, '+')) return false;
+    if (/(xxx|porn|anal|fag|nude|dick)/i.test(arg)) return this.say(room, '/warn ' + user.name + ', Automated response: inap');
     if (arg.length > 4) return this.say(room, '__The away message \'' + arg + '\' is too long. Try using an away message that\'s 4 letters long or less.__');
     if (arg === 'n') return this.say(room, '/back');
     this.say(room, '/away ' + arg);
@@ -1004,4 +1092,368 @@ exports.commands = {
 		
 		this.say(room, Result);
 	},
+
+  /********************
+  * FUN COMMANDS ~END *
+  ********************/
+
+  /********************************************************************************************
+  * Room Owner commands                                                                      *
+  *
+  * These commands allow room owners to personalise settings for moderation and command use. *
+  *******************************************************************************************/
+
+  settings: 'set',
+    set: function (arg, user, room) {
+      if (room === user || !user.hasRank(room, '#')) return false;
+
+      var settable = {
+        autoban: 1,
+          banword: 1,
+          say: 1,
+          joke: 1,
+          usagestats: 1,
+          '8ball': 1,
+          guia: 1,
+          studio: 1,
+          wifi: 1,
+          monotype: 1,
+          survivor: 1,
+          happy: 1,
+          buzz: 1,
+          pair: 1
+      };
+      var modOpts = {
+        flooding: 1,
+          caps: 1,
+          stretching: 1,
+          bannedwords: 1
+      };
+
+      var opts = arg.split(',');
+      var cmd = toId(opts[0]);
+      var setting;
+      if (cmd === 'm' || cmd === 'mod' || cmd === 'modding') {
+        let modOpt = toId(opts[1]);
+        if (!modOpts[modOpt]) return this.say(room, 'Incorrect command: correct syntax is ' + Config.commandcharacter + 'set mod, [' +
+        Object.keys(modOpts).join('/') + '](, [on/off])');
+
+        setting = toId(opts[2]);
+        if (!setting) return this.say(room, 'Moderation for ' + modOpt + ' in this room is currently ' +
+        (this.settings.modding[room] && modOpt in this.settings.modding[room] ? 'OFF' : 'ON') + '.');
+
+        let roomid = room.id;
+        if (!this.settings.modding) this.settings.modding = {};
+        if (!this.settings.modding[roomid]) this.settings.modding[roomid] = {};
+        if (setting === 'on') {
+          delete this.settings.modding[roomid][modOpt];
+          if (Object.isEmpty(this.settings.modding[roomid])) delete this.settings.modding[roomid];
+          if (Object.isEmpty(this.settings.modding)) delete this.settings.modding;
+        } else if (setting === 'off') {
+          this.settings.modding[roomid][modOpt] = 0;
+        } else {
+          return this.say(room, 'Incorrect command: correct syntax is ' + Config.commandcharacter + 'set mod, [' +
+          Object.keys(modOpts).join('/') + '](, [on/off])');
+        }
+
+        this.writeSettings();
+        return this.say(room, 'Moderation for ' + modOpt + ' in this room is now ' + setting.toUpperCase() + '.');
+      }
+
+      if (!(cmd in Commands)) return this.say(room, Config.commandcharacter + '' + opts[0] + ' is not a valid command.');
+
+      var failsafe = 0;
+      while (true) {
+        if (typeof Commands[cmd] === 'string') {
+          cmd = Commands[cmd];
+        } else if (typeof Commands[cmd] === 'function') {
+          if (cmd in settable) break;
+          return this.say(room, 'The settings for ' + Config.commandcharacter + '' + opts[0] + ' cannot be changed.');
+        } else {
+          return this.say(room, 'Something went wrong. PM Morfent or TalkTakesTime here or on Smogon with the command you tried.');
+        }
+
+        if (++failsafe > 5) return this.say(room, 'The command "' + Config.commandcharacter + '' + opts[0] + '" could not be found.');
+      }
+
+      var settingsLevels = {
+        off: false,
+          disable: false,
+          'false': false,
+          '+': '+',
+          '%': '%',
+          '@': '@',
+          '#': '#',
+          '&': '&',
+          '~': '~',
+          on: true,
+          enable: true,
+          'true': true
+      };
+
+      var roomid = room.id;
+      setting = opts[1].trim().toLowerCase();
+      if (!setting) {
+        let msg = '' + Config.commandcharacter + '' + cmd + ' is ';
+        if (!this.settings[cmd] || (!(roomid in this.settings[cmd]))) {
+          msg += 'available for users of rank ' + ((cmd === 'autoban' || cmd === 'banword') ? '#' : Config.defaultrank) + ' and above.';
+        } else if (this.settings[cmd][roomid] in settingsLevels) {
+          msg += 'available for users of rank ' + this.settings[cmd][roomid] + ' and above.';
+        } else {
+          msg += this.settings[cmd][roomid] ? 'available for all users in this room.' : 'not available for use in this room.';
+        }
+
+        return this.say(room, msg);
+      }
+
+      if (!(setting in settingsLevels)) return this.say(room, 'Unknown option: "' + setting + '". Valid settings are: off/disable/false, +, %, @, #, &, ~, on/enable/true.');
+      if (!this.settings[cmd]) this.settings[cmd] = {};
+      this.settings[cmd][roomid] = settingsLevels[setting];
+
+      this.writeSettings();
+      this.say(room, 'The command ' + Config.commandcharacter + '' + cmd + ' is now ' +
+      (settingsLevels[setting] === setting ? ' available for users of rank ' + setting + ' and above.' :
+      (this.settings[cmd][roomid] ? 'available for all users in this room.' : 'unavailable for use in this room.')));
+    },
+
+  blacklist: 'autoban',
+    ban: 'autoban',
+    ab: 'autoban',
+    autoban: function (arg, user, room) {
+      if (room === user || !user.canUse('autoban', room)) return false;
+      if (!Users.self.hasRank(room, '@')) return this.say(room, Users.self.name + ' requires rank of @ or higher to (un)blacklist.');
+      if (!toId(arg)) return this.say(room, 'You must specify at least one user to blacklist.');
+
+      arg = arg.split(',');
+      var added = [];
+      var illegalNick = [];
+      var alreadyAdded = [];
+      var roomid = room.id;
+      for (let i = 0; i < arg.length; i++) {
+        let tarUser = toId(arg[i]);
+        if (!tarUser || tarUser.length > 18) {
+          illegalNick.push(tarUser);
+        } else if (!this.blacklistUser(tarUser, roomid)) {
+          alreadyAdded.push(tarUser);
+        } else {
+          added.push(tarUser);
+          this.say(room, '/roomban ' + tarUser + ', Blacklisted user');
+        }
+      }
+
+      var text = '';
+      if (added.length) {
+        text += 'User' + (added.length > 1 ? 's "' + added.join('", "') + '" were' : ' "' + added[0] + '" was') + ' added to the blacklist.';
+        this.say(room, '/modnote ' + text + ' by ' + user.name + '.');
+        this.writeSettings();
+      }
+      if (alreadyAdded.length) {
+        text += ' User' + (alreadyAdded.length > 1 ? 's "' + alreadyAdded.join('", "') + '" are' : ' "' + alreadyAdded[0] + '" is') + ' already present in the blacklist.';
+      }
+      if (illegalNick.length) text += (text ? ' All other' : 'All') + ' users had illegal nicks and were not blacklisted.';
+      this.say(room, text);
+    },
+
+  unblacklist: 'unautoban',
+    unban: 'unautoban',
+    unab: 'unautoban',
+    unautoban: function (arg, user, room) {
+      if (room === user || !user.canUse('autoban', room)) return false;
+      if (!Users.self.hasRank(room, '@')) return this.say(room, Users.self.name + ' requires rank of @ or higher to (un)blacklist.');
+      if (!toId(arg)) return this.say(room, 'You must specify at least one user to unblacklist.');
+
+      arg = arg.split(',');
+      var removed = [];
+      var notRemoved = [];
+      var roomid = room.id;
+      for (let i = 0; i < arg.length; i++) {
+        let tarUser = toId(arg[i]);
+        if (!tarUser || tarUser.length > 18) {
+          notRemoved.push(tarUser);
+        } else if (!this.unblacklistUser(tarUser, roomid)) {
+          notRemoved.push(tarUser);
+        } else {
+          removed.push(tarUser);
+          this.say(room, '/roomunban ' + tarUser);
+        }
+      }
+
+      var text = '';
+      if (removed.length) {
+        text += ' User' + (removed.length > 1 ? 's "' + removed.join('", "') + '" were' : ' "' + removed[0] + '" was') + ' removed from the blacklist';
+        this.say(room, '/modnote ' + text + ' by user ' + user.name + '.');
+        this.writeSettings();
+      }
+      if (notRemoved.length) text += (text.length ? ' No other' : 'No') + ' specified users were present in the blacklist.';
+      this.say(room, text);
+    },
+
+  rab: 'regexautoban',
+    regexautoban: function (arg, user, room) {
+      if (room === user || !user.isRegexWhitelisted || !user.canUse('autoban', room)) return false;
+      if (!Users.self.hasRank(room, '@')) return this.say(room, Users.self.name + ' requires rank of @ or higher to (un)blacklist.');
+      if (!arg) return this.say(room, 'You must specify a regular expression to (un)blacklist.');
+
+      try {
+        new RegExp(arg, 'i');
+      } catch (e) {
+        return this.say(room, e.message);
+      }
+
+      // checks if the user is attempting to autoban everyone
+      // this isn't foolproof, but good enough to catch mistakes.
+      // if a user bypasses this to autoban everyone, then they shouldn't be on the regex autoban whitelist
+      if (/^(?:(?:\.+|[a-z0-9]|\\[a-z0-9SbB])(?![a-z0-9\.\\])(?:[*+]|\{\d+\,(?:\d+)?\})?)+$/i.test(arg)) {
+        return this.say(room, 'Regular expression /' + arg + '/i cannot be added to the blacklist. Proofread!');
+      }
+
+      arg = '/' + arg + '/i';
+      if (!this.blacklistUser(arg, room.id)) return this.say(room, '/' + arg + ' is already present in the blacklist.');
+
+      this.writeSettings();
+      this.say(room, '/modnote Regular expression ' + arg + ' was added to the blacklist by user ' + user.name + '.');
+      this.say(room, 'Regular expression ' + arg + ' was added to the blacklist.');
+    },
+
+  unrab: 'unregexautoban',
+    unregexautoban: function (arg, user, room) {
+      if (room === user || !user.isRegexWhitelisted || !user.canUse('autoban', room)) return false;
+      if (!Users.self.hasRank(room, '@')) return this.say(room, Users.self.name + ' requires rank of @ or higher to (un)blacklist.');
+      if (!arg) return this.say(room, 'You must specify a regular expression to (un)blacklist.');
+
+      arg = '/' + arg.replace(/\\\\/g, '\\') + '/i';
+      if (!this.unblacklistUser(arg, room.id)) return this.say(room, '/' + arg + ' is not present in the blacklist.');
+
+      this.writeSettings();
+      this.say(room, '/modnote Regular expression ' + arg + ' was removed from the blacklist user by ' + user.name + '.');
+      this.say(room, 'Regular expression ' + arg + ' was removed from the blacklist.');
+    },
+
+  viewbans: 'viewblacklist',
+    vab: 'viewblacklist',
+    viewautobans: 'viewblacklist',
+    viewblacklist: function (arg, user, room) {
+      if (room === user || !user.canUse('autoban', room)) return false;
+
+      var text = '/pm ' + user.id + ', ';
+      if (!this.settings.blacklist) return this.say(room, text + 'No users are blacklisted in this room.');
+
+      var roomid = room.id;
+      var blacklist = this.settings.blacklist[roomid];
+      if (!blacklist) return this.say(room, text + 'No users are blacklisted in this room.');
+
+      if (!arg.length) {
+        let userlist = Object.keys(blacklist);
+        if (!userlist.length) return this.say(room, text + 'No users are blacklisted in this room.');
+        return this.uploadToHastebin('The following users are banned from ' + roomid + ':\n\n' + userlist.join('\n'), function (link) {
+          if (link.startsWith('Error')) return this.say(room, text + link);
+          this.say(room, text + 'Blacklist for room ' + roomid + ': ' + link);
+        }.bind(this));
+      }
+
+      var nick = toId(arg);
+      if (!nick || nick.length > 18) {
+        text += 'Invalid username: "' + nick + '".';
+      } else {
+        text += 'User "' + nick + '" is currently ' + (blacklist[nick] || 'not ') + 'blacklisted in ' + roomid + '.';
+      }
+      this.say(room, text);
+    },
+
+  banphrase: 'banword',
+    banword: function (arg, user, room) {
+      arg = arg.trim().toLowerCase();
+      if (!arg) return false;
+
+      var tarRoom = room.id;
+      if (room === user) {
+        if (!user.isExcepted) return false;
+        tarRoom = 'global';
+      } else if (user.canUse('banword', room)) {
+        tarRoom = room.id;
+      } else {
+        return false;
+      }
+
+      var bannedPhrases = this.settings.bannedphrases ? this.settings.bannedphrases[tarRoom] : null;
+      if (!bannedPhrases) {
+        if (bannedPhrases === null) this.settings.bannedphrases = {};
+        bannedPhrases = (this.settings.bannedphrases[tarRoom] = {});
+      } else if (bannedPhrases[arg]) {
+        return this.say(room, 'Phrase "' + arg + '" is already banned.');
+      }
+      bannedPhrases[arg] = 1;
+
+      this.writeSettings();
+      this.say(room, 'Phrase "' + arg + '" is now banned.');
+    },
+
+  unbanphrase: 'unbanword',
+    unbanword: function (arg, user, room) {
+      var tarRoom;
+      if (room === user) {
+        if (!user.isExcepted) return false;
+        tarRoom = 'global';
+      } else if (user.canUse('banword', room)) {
+        tarRoom = room.id;
+      } else {
+        return false;
+      }
+
+      arg = arg.trim().toLowerCase();
+      if (!arg) return false;
+      if (!this.settings.bannedphrases) return this.say(room, 'Phrase "' + arg + '" is not currently banned.');
+
+      var bannedPhrases = this.settings.bannedphrases[tarRoom];
+      if (!bannedPhrases || !bannedPhrases[arg]) return this.say(room, 'Phrase "' + arg + '" is not currently banned.');
+
+      delete bannedPhrases[arg];
+      if (Object.isEmpty(bannedPhrases)) {
+        delete this.settings.bannedphrases[tarRoom];
+        if (Object.isEmpty(this.settings.bannedphrases)) delete this.settings.bannedphrases;
+      }
+
+      this.writeSettings();
+      this.say(room, 'Phrase \"' + arg + '\" is no longer banned.');
+    },
+
+  viewbannedphrases: 'viewbannedwords',
+    vbw: 'viewbannedwords',
+    viewbannedwords: function (arg, user, room) {
+      var tarRoom = room.id;
+      var text = '';
+      var bannedFrom = '';
+      if (room === user) {
+        if (!user.isExcepted) return false;
+        tarRoom = 'global';
+        bannedFrom += 'globally';
+      } else if (user.canUse('banword', room)) {
+        text += '/pm ' + user.id + ', ';
+        bannedFrom += 'in ' + room.id;
+      } else {
+        return false;
+      }
+
+      if (!this.settings.bannedphrases) return this.say(room, text + 'No phrases are banned in this room.');
+      var bannedPhrases = this.settings.bannedphrases[tarRoom];
+      if (!bannedPhrases) return this.say(room, text + 'No phrases are banned in this room.');
+
+      if (arg.length) {
+        text += 'The phrase "' + arg + '" is currently ' + (bannedPhrases[arg] || 'not ') + 'banned ' + bannedFrom + '.';
+        return this.say(room, text);
+      }
+
+      var banList = Object.keys(bannedPhrases);
+      if (!banList.length) return this.say(room, text + 'No phrases are banned in this room.');
+
+      this.uploadToHastebin('The following phrases are banned ' + bannedFrom + ':\n\n' + banList.join('\n'), function (link) {
+        if (link.startsWith('Error')) return this.say(room, link);
+        this.say(room, text + 'Banned phrases ' + bannedFrom + ': ' + link);
+      }.bind(this));
+    }
+
+  /**************************
+  * Roomowner commands ~end *
+  **************************/
+
 };
