@@ -105,6 +105,24 @@ var teamOnePoints = 0;
 var teamTwoPoints = 0;
 clearInterval(triviaTimer);
 
+var pokeList = ['keldeo-resolute', 'natu', 'bulbasaur', 'ivysaur', 'venusaur', 'charmender', 'charmeleon', 'charizard', 'squirtle', 'wartortle', 'blastoise', 'pikachu', 'nidoqueen', 'nidoking',
+'arcanine', 'alakazam', 'slowbro', 'dodrio', 'dewgong', 'exeggutor', 'vaporeon', 'flareon', 'jolteon', 'dragonite', 'mew', 'mewtwo', 'chikorita', 'bayleef', 'meganium', 'cyndaquil', 'quilava',
+'typhlosion', 'totodile', 'croconaw', 'feraligatr', 'crobat', 'igglybuff', 'sudowoodo', 'politoed', 'espeon', 'umbreon', 'snubbull', 'heracross', 'porygon2', 'raikou', 'entei', 'suicune', /*47*/
+'tyranitar', 'lugia', 'ho-oh', 'celebi', 'treecko', 'grovyle', 'sceptile', 'mudkip', 'marshtomp', 'swampert', 'torchic', 'combusken', 'blaziken', 'beautifly', 'pelipper', 'gardevoir', 'masquerain',/*64*/
+'shroomish', 'breloom', 'makuhita', 'hariyama', 'sableye', 'mawile', 'aggron', 'medicham', 'manectric', 'sharpedo', 'wailord', 'camerupt', 'trapinch', 'zangoose', 'whiscash', 'crawdaunt',/*80*/
+'dusclops', 'walrein', 'gorebyss', 'salamence', 'beldum', 'metang', 'metagross', 'regirock', 'regice', 'registeel', 'latias', 'latios', 'kyogre', 'groudon', 'jirachi', 'rayquaza', 'deoxys', /*97*/
+'groudon-primal', 'kyogre-primal', 'turtwig', 'grotle', 'torterra', 'chimchar', 'monferno', 'infernape', 'piplup', 'prinplup', 'empoleon', 'staraptor', 'kricketot', 'kricketune', 'roserade',/*112*/
+'rampardos', 'floatzel', 'gastrodon', 'drifloon', 'drifblim', 'mismagius', 'garchomp', 'hippopotas', 'lumineon', 'snover', 'abomasnow', 'weavile', 'magnezone', 'leafeon', 'glaceon', 'mamoswine',/*128*/
+'rotom-wash', 'rotom-frost', 'rotom-mow', 'rotom-heat', 'rotom-fan', 'uxie', 'mesprit', 'azelf', 'dialga', 'palkia', 'giratina', 'arceus', 'heatran', 'regigigas', 'cresselia', 'phione', 'manaphy',/*145*/
+'darkrai', 'shaymin', 'shaymin-sky', 'victini', 'snivy', 'servine', 'serperior', 'tepig', 'pignite', 'emboar', 'oshawott', 'dewott', 'samurott', 'patrat', 'watchog', 'liepard', 'excadrill', 'timburr',/*164*/
+'gurdurr', 'conkeldurr', 'seismitoad', 'darmanitan', 'dwebble', 'cofagrigus', 'trubbish', 'zoroark', 'solosis', 'duosion', 'reuniclus', 'alomomola', 'galvantula', 'ferroseed', 'ferrothorn',/*179*/
+'chandelure', 'haxorus', 'vullaby', 'braviary', 'volcarona', 'cobalion', 'terrakion', 'virizion', 'tornadus', 'thundurus', 'landorus', 'tornadus-therian', 'thundurus-therian', 'landorus-therian',/*193*/
+'reshiram', 'zekrom', 'kyurem', 'keldeo', 'kyurem-black', 'kyurem-white', 'meloetta', 'meloetta-pirouette', 'genesect', 'chespin', 'quilladin', 'chesnaught', 'fennekin', 'braixen', 'delphox',/*208*/
+'froakie', 'frogadier', 'greninja', 'bunnelby', 'fletchinder', 'talonflame', 'scatterbug', 'meowstic', 'doublade', 'aegislash', 'aromatisse', 'inkay', 'skrelp', 'dragalge', 'clauncher', 'tyrunt',/*224*/
+'tyrantrum', 'hawlucha', 'phantump', 'trevenant', 'pumpkaboo', 'gourgeist', 'noibat', 'noivern', 'xerneas', 'yveltal', 'zygarde', 'diancie', 'hoopa', 'hoope-unbound', 'volcanion'];/*239*/
+var Word = '**Word:** ';
+var AnagramOn = false;
+
 exports.commands = {
 
   /****************
@@ -453,71 +471,88 @@ exports.commands = {
     },
 
   corrotorneios: 'runtour', //for Portuguese
-    runtour: function(arg, user, room) {
-      if(!user.hasRank(room, '+')) return false;
-      this.say(room, '/tour start');
-      this.say(room, '/tour remind');
-      this.say(room, '/tour autodq 2');
-      this.say(room, '/tour runautodq');
-      this.say(room, '/wall Good luck and Have fun!');
-
-      this.remind2 = setTimeout(function (room, remind2) {
-        this.say(room, remind2);
-      }.bind(this), 120 * 1000, room, '/tour remind');
-
-    },
-
-  gte: 'grandtourevent',
-    grandtourevent: function(arg, user, room){
-      if (room.id !== "tournaments") return false;
-      if (!user.canUse('autoban', room)) return false;
-      this.say(room, '/etour ' + arg)
-      this.say(room, '/wall The Grand Tournament will be starting in 15 minutes!')
-
-      this.gt3 = setTimeout(function (room, gt3) {
-        this.say(room, gt3);
-      }.bind(this), 120 * 1000, room, '/wall Switching teams and scouting is against the rules (unless the tier is random).');
-
-      this.gt32 = setTimeout(function (room, gt32) {
-        this.say(room, gt32);
-      }.bind(this), 480 * 1000, room, '/wall Switching teams and scouting is against the rules (unless the tier is random).');
-
-      this.gtedeclare = setTimeout(function (room, gt32) {
-        this.say(room, gt32);
-      }.bind(this), 750 * 1000, room, '/modnote Declare the last gdeclare in 30 seconds!');
-
-      this.gtedeclare = setTimeout(function (room, gt32) {
-        this.say(room, gt32);
-      }.bind(this), 856 * 1000, room, '/wall We\'re starting!');
-
-      this.gtestart = setTimeout(function (room, gtestart) {
-        this.say(room, gtestart);
-      }.bind(this), 900 * 1000 , room, '/tour start');
-
-      this.gteremind = setTimeout(function (room, gteremind) {
-        this.say(room, gteremind);
-      }.bind(this), 901 * 1000 , room, '/tour remind');
-
-      this.gteautodq = setTimeout(function (room, gteautodq) {
-        this.say(room, gteautodq);
-      }.bind(this), 902 * 1000 , room, '/tour autodq 2');
-
-      this.gterundq = setTimeout(function (room, gterundq) {
-        this.say(room, gterundq);
-      }.bind(this), 903 * 1000 , room, '/tour runautodq');
-
-      this.gt33 = setTimeout(function (room, gt33) {
-        this.say(room, gt33);
-      }.bind(this), 963 * 1000, room, '/wall Switching teams and scouting is against the rules (unless the tier is random).');
-
-      this.gteremind2 = setTimeout(function (room, gteremind2) {
-        this.say(room, gteremind2);
-      }.bind(this), 1030 * 1000, room, '/tour remind');
-
-      this.gteremind3 = setTimeout(function (room, gteremind3) {
-        this.say(room, gteremind3);
-      }.bind(this), 1150 * 1000, room, '/tour remind');  
-    },
+	runtour: function(arg, user, room) {
+		if(!user.hasRank(room, '+')) return false;
+        if (Number(arg) > 15) return this.say(room, '__You can\'t make a tournament start in more then 15 minutes.__');
+        
+		if (!arg) {
+			this.say(room, '/tour start');
+			this.say(room, '/tour remind');
+			this.say(room, '/tour autodq 2');
+			this.say(room, '/tour runautodq');
+			this.say(room, '/wall Good luck and Have fun!');
+	
+			this.remind2 = setTimeout(function (room, remind2) {
+				this.say(room, remind2);
+			}.bind(this), 120 * 1000, room, '/tour remind');
+		}
+		if (arg) {
+			if (arg === 'off' || arg === 'cancel' || arg === 'false') {
+				if (!this.timeStart) return this.say(room, 'No tour autostart was set.');
+				this.timeStart = clearTimeout(this.timeStart);
+                this.timeRemind = clearTimeout(this.timeRemind);
+                this.timeAutodq = clearTimeout(this.timeAutodq);
+                this.timeRunautodq = clearTimeout(this.timeRunautodq);
+                this.timeWall = clearTimeout(this.timeWall);
+                return this.say(room, 'The tournament\'s autostart was canceled.');
+			}
+			if (!this.timeStart) {
+				this.say(room, 'The tournament will be starting in **' + arg + ' minute(s)**!');
+				
+				this.timeStart = setTimeout(function (room, timeStart) {
+					this.say(room, timeStart);
+				}.bind(this), Number(arg) * 60000, room, '/tour start');
+				
+				this.timeRemind = setTimeout(function (room, timeRemind) {
+					this.say(room, timeRemind);
+				}.bind(this), Number(arg) * 60000 + 500, room, '/tour remind');
+				
+				this.timeAutodq = setTimeout(function (room, timeAutodq) {
+					this.say(room, timeAutodq);
+				}.bind(this), Number(arg) * 60000 + 1000, room, '/tour autodq 2');
+				
+				this.timeRunautodq = setTimeout(function (room, timeRunautodq) {
+					this.say(room, timeRunautodq);
+				}.bind(this), Number(arg) * 60000 + 1500, room, '/tour runautodq');
+				
+				this.timeWall = setTimeout(function (room, timeWall) {
+					this.say(room, timeWall);
+				}.bind(this), Number(arg) * 60000 + 2000, room, '/wall Good luck and Have fun!');
+				
+				return false;
+			}
+			
+			if (this.timeStart) {
+				this.timeStart = clearTimeout(this.timeStart);
+	            this.timeRemind = clearTimeout(this.timeRemind);
+	            this.timeAutodq = clearTimeout(this.timeAutodq);
+	            this.timeRunautodq = clearTimeout(this.timeRunautodq);
+	            this.timeWall = clearTimeout(this.timeWall);
+	            
+	            this.say(room, 'The tournament will be starting in **' + arg + ' minute(s)**!');
+					
+				this.timeStart = setTimeout(function (room, timeStart) {
+					this.say(room, timeStart);
+				}.bind(this), Number(arg) * 60000, room, '/tour start');
+				
+				this.timeRemind = setTimeout(function (room, timeRemind) {
+					this.say(room, timeRemind);
+				}.bind(this), Number(arg) * 60000 + 500, room, '/tour remind');
+				
+				this.timeAutodq = setTimeout(function (room, timeAutodq) {
+					this.say(room, timeAutodq);
+				}.bind(this), Number(arg) * 60000 + 1000, room, '/tour autodq 2');
+				
+				this.timeRunautodq = setTimeout(function (room, timeRunautodq) {
+					this.say(room, timeRunautodq);
+				}.bind(this), Number(arg) * 60000 + 1500, room, '/tour runautodq');
+				
+				this.timeWall = setTimeout(function (room, timeWall) {
+					this.say(room, timeWall);
+				}.bind(this), Number(arg) * 60000 + 2000, room, '/wall Good luck and Have fun!');
+			}
+		}
+	},
 
   commands: 'guide',
     guia: 'guide',
@@ -541,76 +576,47 @@ exports.commands = {
   * FUN COMMANDS *
   ***************/
 
-  helix: function (arg, user, room) {
-    var text = (room === user || user.canUse('8ball', room)) ? '' : '/pm ' + user.id + ', ';
-    var rand = ~(20 * Math.random());
-
-    switch (rand) {
-      case 0:
-      text += "Signs point to yes.";
-      break;
-      case 1:
-      text += "Yes.";
-      break;
-      case 2:
-      text += "Reply hazy, try again.";
-      break;
-      case 3:
-      text += "Without a doubt.";
-      break;
-      case 4:
-      text += "My sources say no.";
-      break;
-      case 5:
-      text += "As I see it, yes.";
-      break;
-      case 6:
-      text += "You may rely on it.";
-      break;
-      case 7:
-      text += "Concentrate and ask again.";
-      break;
-      case 8:
-      text += "Outlook not so good.";
-      break;
-      case 9:
-      text += "It is decidedly so.";
-      break;
-      case 10:
-      text += "Better not tell you now.";
-      break;
-      case 11:
-      text += "Very doubtful.";
-      break;
-      case 12:
-      text += "Yes - definitely.";
-      break;
-      case 13:
-      text += "It is certain.";
-      break;
-      case 14:
-      text += "Cannot predict now.";
-      break;
-      case 15:
-      text += "Most likely.";
-      break;
-      case 16:
-      text += "Ask again later.";
-      break;
-      case 17:
-      text += "My reply is no.";
-      break;
-      case 18:
-      text += "Outlook good.";
-      break;
-      case 19:
-      text += "Don't count on it.";
-      break;
-    }
-
-    this.say(room, '__' + text + '__');
-
-  },
+	anagram: function(arg, user, room) {
+		if (arg === 'help') return this.say(room, 'Use ``-anagram`` to start an anagram game, ``-ar`` to remind the on-going anagram and ``-anagram quit`` to quit an on-going anagram. Use ``-guess [answer]`` OR ``-g [answer]`` to answer.');
+		if (!user.hasRank(room, '+')) return false;
+		if (AnagramOn !== true && arg === 'quit') {
+			AnagramOn = false;
+			Word = "**Word:** ";
+			return this.say(room, 'The anagram was canceled out.');
+		} 
+		if (AnagramOn !== false) return this.say(room, 'An anagram is already being ran');
+		Word = "**Word:** ";
+		var pick = pokeList[Math.floor(Math.random() * 239)];
+		pick.split('');
+		
+		for (var i = 0; i < (pick.length + 2) * (pick.length + 2); i++) {
+			var randomInt = Math.floor(Math.random() * 52 + 1);
+			pick = pick.slice(1, randomInt) + pick.charAt(0) + pick.slice(randomInt, pick.length);
+		}
+		
+		Word += pick;
+		
+		this.say(room, Word);
+		AnagramOn = true;
+	},
+	
+	ar: 'anagramremind', 
+	anagramremind: function(arg, user, room) {
+		if (AnagramOn !== true) return this.say(room, 'There is no on-going anagram.');
+		this.say(room, Word);
+	},
+	
+	g: 'guess',
+	guess: function(arg, user, room) {
+		if (AnagramOn !== true) return this.say(room, 'There is no on-going anagram.');
+		for (var i = 0; i < pokeList.length; i++) {
+			pokeList[i] = pokeList[i].toLowerCase();
+			if (arg === pokeList[i]) {
+				AnagramOn = false;
+				return this.say(room, user.name + ' has found the correct answer!');
+			}
+		}
+	},
 
   mymood: function(arg, user, room) {
     var differentMoods = [
