@@ -25,9 +25,6 @@ const CONFIGURABLE_COMMANDS = {
   'be': true
 };
 
-//var wallTitle = [];
-//var wallMessage = [];
-//var wallRoom = [];
 var walls = [];
 
 //A Game of Trivia 
